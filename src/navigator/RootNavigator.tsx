@@ -27,9 +27,10 @@ export default function RootNavigator() {
           headerShown: false,
           tabBarShowLabel: false,
           tabBarStyle: {
-            backgroundColor: colors.background,
+            backgroundColor: colors.surface,
             height: scale(52),
             borderTopWidth: 0,
+            width: '100%',
           },
         }}>
         <Tab.Screen

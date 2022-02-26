@@ -22,6 +22,10 @@ export const AppTheme = {
       '#009E55',
       '#EF6F6C',
       '#2EBFA5',
+      '#3685B5',
+      '#D3C4E3',
+      '#DBB1BC',
+      '#D62839',
     ],
   },
 };
