@@ -28,7 +28,6 @@ const Home: React.FC<Props> = ({ navigation, route }: Props) => {
     if (totalCount && gifData.length >= totalCount) {
       return;
     }
-    setIsLoading(true);
     try {
       const response = await customFetchApi(
         `trending?api_key=${API_KEY}&limit=${10}&offset=${gifData.length}`,

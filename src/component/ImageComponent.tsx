@@ -1,5 +1,5 @@
 import { GIFObject, MultiResponse } from 'giphy-api';
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
@@ -7,23 +7,41 @@ import {
   Image,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { colors, fonts } from '../theme';
 import { scale } from '../utils';
+import Chips from './Chips';
+import CustomText from './Text';
 
 type Props = {
   gifData: MultiResponse['data'];
   onEndReached: () => void;
 };
 
+type ImagePath = [
+  'fixed_height_small',
+  'fixed_height_downsampled',
+  'downsized_medium',
+];
+
 const ImageComponent = ({ gifData, onEndReached }: Props) => {
   const { width: viewWidth } = Dimensions.get('window');
+  const flatlistRef = useRef<FlatList>();
+  const [resolutionTypeIndex, setResolutionType] = useState(0);
+  const [showScrollTop, setScrollToTop] = useState(false);
+  const imagePath: ImagePath = [
+    'fixed_height_small',
+    'fixed_height_downsampled',
+    'downsized_medium',
+  ];
 
   const _renderItem = ({ item, index }: { item: GIFObject; index: number }) => {
     // console.log(item.user?.avatar_url);
-    const { url, height, width } = item.images.downsized_medium;
+    const { url, height, width } = item.images[imagePath[resolutionTypeIndex]];
     const scaledHeight = +height * (viewWidth / +width);
     const colorIndex = index > 8 ? index % 8 : index;
     return (
@@ -67,18 +85,52 @@ const ImageComponent = ({ gifData, onEndReached }: Props) => {
     );
   };
 
+  const showScrollTopButton = nativeEvent => {
+    if (nativeEvent.contentOffset.y > 2500) {
+      setScrollToTop(true);
+      return;
+    }
+
+    if (showScrollTop) setScrollToTop(false)
+  };
+
+  const scrollToTop = () => {
+    console.log('scrollToTop fired');
+    flatlistRef &&
+      flatlistRef.current?.scrollToOffset({ animated: true, offset: 0 });
+  };
+
   return (
     <View style={styles.container}>
+      {showScrollTop ? (
+        <TouchableOpacity
+          style={styles.scrollToTopButton}
+          onPress={() => scrollToTop()}>
+          <MaterialIcon
+            name="keyboard-arrow-up"
+            color={colors.onSecondary}
+            size={scale(18)}
+          />
+        </TouchableOpacity>
+      ) : null}
       {gifData.length ? (
         <FlatList
+          ref={flatlistRef}
           style={styles.container}
           data={gifData}
           renderItem={_renderItem}
           keyExtractor={(item, index: number) => index.toString()}
           onEndReached={() => onEndReached()}
           onEndReachedThreshold={1}
-          // numColumns={2}
+          onScroll={({ nativeEvent }) => showScrollTopButton(nativeEvent)}
           ListFooterComponent={() => ListFooter()}
+          ListHeaderComponent={() => (
+            <Chips
+              clipTypes={['low', 'medium', 'high']}
+              setItem={setResolutionType}
+              selectedTypeIndex={resolutionTypeIndex}
+            />
+          )}
         />
       ) : null}
     </View>
@@ -110,6 +162,33 @@ const styles = StyleSheet.create({
   },
   loader: {
     paddingVertical: scale(24),
+  },
+  switchSize: {
+    width: '100%',
+    height: scale(52),
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+  },
+  sizeSwitchButton: {
+    backgroundColor: colors.secondary,
+    width: scale(68),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: scale(12),
+    paddingVertical: scale(8),
+  },
+  scrollToTopButton: {
+    position: 'absolute',
+    bottom: '5%',
+    right: '5%',
+    zIndex: 4,
+    width: scale(40),
+    height: scale(40),
+    backgroundColor: colors.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 50,
   },
 });
 
