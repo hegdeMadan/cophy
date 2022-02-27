@@ -26,8 +26,8 @@ const Explore: React.FC = () => {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [searchValue, setSearchValue] = useState<string>('');
   const [searchHistory, setSearchHistory] = useState<string[]>([]);
-  const [isSearchFocused, setSearchFocused] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
+  const [error, setError] = useState('');
   let timeoutInstance: ReturnType<typeof setTimeout>;
 
   const searchGifs = (searchInput: string) => {
@@ -42,28 +42,39 @@ const Explore: React.FC = () => {
       return;
     }
 
-    timeoutInstance = setTimeout(async () => {
-      setSearchValue(searchInput);
-      setIsSearching(true);
-      if (!searchHistory.includes(searchInput)) {
-        setSearchHistory([...searchHistory, searchInput]);
-      }
-      const response = await customFetchApi(
-        `search?api_key=${API_KEY}&limit=${10}&offset=${
-          gifData.length
-        }&q=${searchInput}`,
-      );
-      console.log(response, gifData);
-      const { data, pagination } = response;
-      const updatedGifs = searchHistory.includes(searchInput)
-        ? [...gifData, ...data]
-        : [...data];
-
+    try {
+      timeoutInstance = setTimeout(async () => {
+        setSearchValue(searchInput);
+        setIsSearching(true);
+        if (!searchHistory.includes(searchInput)) {
+          setSearchHistory([...searchHistory, searchInput]);
+        }
+        const response = await customFetchApi(
+          `search?api_key=${API_KEY}&limit=${10}&offset=${
+            gifData.length
+          }&q=${searchInput}`,
+        );
+        if (response?.errorName === 'AbortError') {
+          setError(response.errorMessage);
+          setIsSearching(false);
+          return;
+        }
+        console.log(response, gifData);
+        const { data, pagination } = response;
+        const updatedGifs = searchHistory.includes(searchInput)
+          ? [...gifData, ...data]
+          : [...data];
+        const errorMsg = !data.length ? 'no data found' : '';
+        setIsSearching(false);
+        setError(errorMsg);
+        setGifs([...updatedGifs]);
+        setTotalCount(pagination.totalCount);
+        Keyboard.dismiss();
+      }, 700);
+    } catch (err) {
       setIsSearching(false);
-      setGifs([...updatedGifs]);
-      setTotalCount(pagination.totalCount);
-      Keyboard.dismiss();
-    }, 700);
+      setError('something  went wrong');
+    }
   };
 
   const removeFromSearchHistory = (item: string) => {
@@ -105,8 +116,6 @@ const Explore: React.FC = () => {
               placeholder="search 'lol', 'funny', 'thank you' or anything"
               onChangeText={(val: string) => searchGifs(val)}
               style={styles.textInput}
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
             />
             {isSearching ? (
               <ActivityIndicator color={colors.secondary} size={scale(20)} />
@@ -128,6 +137,9 @@ const Explore: React.FC = () => {
             </View>
           ) : null}
         </View>
+        {error ? (
+          <CustomText text={error} textStyle={styles.errorText} />
+        ) : null}
         {gifData.length ? (
           <ImageComponent
             gifData={gifData}
@@ -192,6 +204,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
+  },
+  errorText: {
+    color: colors.error,
+    fontSize: scale(16),
+    textAlign: 'center',
+    marginTop: scale(8),
   },
 });
 

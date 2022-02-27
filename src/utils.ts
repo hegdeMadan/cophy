@@ -18,13 +18,30 @@ export const moderateScale = (size: number, factor = 0.5) =>
 export const moderateVerticalScale = (size: number, factor = 0.5) =>
   size + (verticalScale(size) - size) * factor;
 
+async function throwError() {
+  throw new Error('something went wrong');
+}
+
 export const customFetchApi = async (path: string) => {
+  const controller = new AbortController();
+  let timeoutInstance;
+  const signal = controller.signal;
+  timeoutInstance = setTimeout(() => {
+    controller.abort();
+  }, 40000);
   try {
-    const response = await fetch(`${BASE_URL}${path}`);
+    const response = await fetch(`${BASE_URL}${path}`, { signal });
+    console.log('---------- response ---------', response);
+    clearTimeout(timeoutInstance);
     return await response.json();
-    // console.log(json);
-    // return json;
   } catch (error) {
-    console.log('error inside fetchGifs: ', error);
+    console.log('error inside customFetchApi: ', error?.name);
+    if (error?.name === 'AbortError') {
+      return {
+        errorName: 'AbortError',
+        errorMessage: 'connection timed out',
+      };
+    }
+    return 'something went wrong';
   }
 };
