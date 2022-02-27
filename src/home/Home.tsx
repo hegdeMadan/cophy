@@ -1,6 +1,6 @@
 import { GIFObject, MultiResponse } from 'giphy-api';
 import React, { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, View } from 'react-native';
 import ImageComponent from '../component/ImageComponent';
 import CustomText from '../component/Text';
 import { API_KEY, BASE_URL } from '../constants';
@@ -16,6 +16,7 @@ type Props = {
 const Home: React.FC<Props> = ({ navigation, route }: Props) => {
   const [gifData, setGifs] = useState<MultiResponse['data'] | []>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchGifs = async () => {
     if (totalCount && gifData.length >= totalCount) {
@@ -26,6 +27,7 @@ const Home: React.FC<Props> = ({ navigation, route }: Props) => {
     );
     console.log(response);
     const { data, pagination } = response;
+    setIsLoading(false);
     setGifs([...gifData, ...data]);
     setTotalCount(pagination.totalCount);
   };
@@ -34,10 +36,18 @@ const Home: React.FC<Props> = ({ navigation, route }: Props) => {
     fetchGifs();
   }, []);
 
+  if (isLoading) {
+    return (
+      <View style={styles.loader}>
+        <ActivityIndicator color={colors.primary} size={scale(28)} />
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <View style={styles.logoWrapper}>
-        <CustomText text="COFY" textStyle={styles.logo} />
+        <CustomText text="COPHY" textStyle={styles.logo} />
       </View>
       {gifData.length ? (
         <ImageComponent gifData={gifData} onEndReached={() => fetchGifs()} />
@@ -60,6 +70,11 @@ const styles = StyleSheet.create({
     fontSize: scale(28),
     fontFamily: fonts.AbrilFatfaceRegular,
     letterSpacing: 1,
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

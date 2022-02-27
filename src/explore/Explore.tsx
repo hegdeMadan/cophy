@@ -67,8 +67,11 @@ const Explore: React.FC = () => {
   };
 
   const removeFromSearchHistory = (item: string) => {
+    console.log(item);
     const indexOfItem = searchHistory.indexOf(item);
-    searchHistory.splice(indexOfItem, 1);
+    const history = [...searchHistory];
+    history.splice(indexOfItem, 1);
+    setSearchHistory(history);
   };
 
   const _renderSearchList = ({ item }: { item: string }) => (
@@ -87,7 +90,7 @@ const Explore: React.FC = () => {
       <MaterialIcon
         name="close"
         color={colors.placeHolder}
-        size={scale(14)}
+        size={scale(16)}
         onPress={() => removeFromSearchHistory(item)}
       />
     </View>
@@ -96,8 +99,8 @@ const Explore: React.FC = () => {
   return (
     <KeyboardAvoidingView style={styles.container}>
       <View style={styles.container}>
-        <View style={styles.searchView}>
-          <View style={styles.searchContainer}>
+        <View style={[styles.searchView]}>
+          <View style={[styles.searchContainer]}>
             <TextInput
               placeholder="search 'lol', 'funny', 'thank you' or anything"
               onChangeText={(val: string) => searchGifs(val)}
@@ -115,8 +118,8 @@ const Explore: React.FC = () => {
               />
             )}
           </View>
-          {isSearchFocused || !gifData.length ? (
-            <View style={styles.historyList}>
+          {!gifData.length ? (
+            <View style={[styles.historyList]}>
               <FlatList
                 data={searchHistory}
                 renderItem={_renderSearchList}
@@ -142,16 +145,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  searchContainer: {
+  searchView: {
+    backgroundColor: colors.surface,
     width: '94%',
+    // backgroundColor: colors.surface,
     alignSelf: 'center',
+    borderRadius: scale(16),
+  },
+  searchContainer: {
     height: scale(36),
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.surface,
-    borderRadius: scale(16),
-    marginVertical: scale(4),
+    // marginVertical: scale(4),
     paddingHorizontal: scale(8),
+    borderBottomColor: colors.background,
+    borderBottomWidth: 0.5,
   },
   textInput: {
     flex: 1,
@@ -161,18 +169,13 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
   },
   historyList: {
-    width: '100%',
+    width: '94%',
+    alignSelf: 'center',
     maxHeight: scale(800),
     paddingHorizontal: '5%',
-    // position: 'absolute',
-    // top: scale(52),
-    // zIndex: 2,
-    backgroundColor: colors.background,
   },
   searchHistoryItem: {
-    flex: 1,
     paddingVertical: scale(8),
-    // backgroundColor: '#eee',
     flexDirection: 'row',
     alignItems: 'center',
   },
