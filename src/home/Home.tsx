@@ -1,4 +1,4 @@
-import { GIFObject, MultiResponse } from 'giphy-api';
+import { MultiResponse } from 'giphy-api';
 import React, { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -32,7 +32,6 @@ const Home: React.FC<Props> = ({ navigation, route }: Props) => {
       const response = await customFetchApi(
         `trending?api_key=${API_KEY}&limit=${10}&offset=${gifData.length}`,
       );
-      console.log('response------------', response);
       if (response?.errorName === 'AbortError') {
         setError(response.errorMessage);
         setIsLoading(false);
@@ -44,7 +43,6 @@ const Home: React.FC<Props> = ({ navigation, route }: Props) => {
       setGifs([...gifData, ...data]);
       setTotalCount(pagination.totalCount);
     } catch (err) {
-      // console.log('error: ', err);
       setError('something went wrong');
       setIsLoading(false);
     }

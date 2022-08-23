@@ -15,7 +15,6 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { colors, fonts } from '../theme';
 import { scale } from '../utils';
 import Chips from './Chips';
-import CustomText from './Text';
 
 type Props = {
   gifData: MultiResponse['data'];
@@ -43,7 +42,7 @@ const ImageComponent = ({ gifData, onEndReached }: Props) => {
     // console.log(item.user?.avatar_url);
     const { url, height, width } = item.images[imagePath[resolutionTypeIndex]];
     const scaledHeight = +height * (viewWidth / +width);
-    const colorIndex = index > 8 ? index % 8 : index;
+    const colorIndex = index % 8;
     return (
       <View style={styles.post}>
         <View style={styles.user}>
@@ -53,7 +52,7 @@ const ImageComponent = ({ gifData, onEndReached }: Props) => {
             color={colors.secondary}
             style={{ marginRight: scale(8) }}
           />
-          <View style={styles.userNameWrapper}>
+          <View>
             <Text style={[styles.userName, styles.displayName]}>
               {item.user?.display_name || 'Giphy'}
             </Text>
@@ -91,11 +90,10 @@ const ImageComponent = ({ gifData, onEndReached }: Props) => {
       return;
     }
 
-    if (showScrollTop) setScrollToTop(false)
+    if (showScrollTop) setScrollToTop(false);
   };
 
   const scrollToTop = () => {
-    console.log('scrollToTop fired');
     flatlistRef &&
       flatlistRef.current?.scrollToOffset({ animated: true, offset: 0 });
   };

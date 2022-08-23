@@ -10,7 +10,6 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-// import {  } from 'react-native-gesture-handler';
 import { colors, fonts } from '../theme';
 import { customFetchApi, scale } from '../utils';
 import IonIcon from 'react-native-vector-icons/Ionicons';
@@ -176,6 +175,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontFamily: fonts.AxiformaRegular,
+    color: colors.placeHolder,
   },
   textStyle: {
     fontSize: scale(14),

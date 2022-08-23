@@ -1,6 +1,5 @@
 import { Dimensions } from 'react-native';
 import { BASE_URL } from './constants';
-import { colors } from './theme';
 
 const { width, height } = Dimensions.get('window');
 const [shortDimension, longDimension] =
@@ -18,10 +17,6 @@ export const moderateScale = (size: number, factor = 0.5) =>
 export const moderateVerticalScale = (size: number, factor = 0.5) =>
   size + (verticalScale(size) - size) * factor;
 
-async function throwError() {
-  throw new Error('something went wrong');
-}
-
 export const customFetchApi = async (path: string) => {
   const controller = new AbortController();
   let timeoutInstance;
@@ -31,7 +26,7 @@ export const customFetchApi = async (path: string) => {
   }, 40000);
   try {
     const response = await fetch(`${BASE_URL}${path}`, { signal });
-    console.log('---------- response ---------', response);
+    // console.log('---------- response ---------', response);
     clearTimeout(timeoutInstance);
     return await response.json();
   } catch (error) {
